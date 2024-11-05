@@ -1,0 +1,11 @@
+[all]
+example.local.lab
+
+[node_exporter]
+example.local.lab
+
+[prometheus]
+example.local.lab
+
+[grafana]
+example.local.lab

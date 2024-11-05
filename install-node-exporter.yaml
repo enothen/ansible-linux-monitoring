@@ -1,0 +1,12 @@
+---
+- name: Install node-exporter container and systemd service
+  hosts: node_exporter
+  gather_facts: False
+  become: True
+
+  tasks:
+  - name: Import node-exporter role
+    ansible.builtin.import_role:
+      name: node-exporter
+      tasks_from: "{{ task | default('install') }}"
+  

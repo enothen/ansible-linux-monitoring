@@ -1,0 +1,8 @@
+# url to the container image
+container_image_url: docker.io/prom/node-exporter
+
+# name of the container
+container_name: node-exporter
+
+# name of the container systemd service
+container_service_name: container-node-exporter

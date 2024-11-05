@@ -1,0 +1,46 @@
+---
+- name: Create podman volume for prometheus configuration
+  containers.podman.podman_volume:
+    state: present
+    name: "{{ volume_name }}"
+
+- name: Block to copy prometheus.yml into prometheus volume
+  block:
+    - name: Template prometheus.yml.j2 to host
+      ansible.builtin.template:
+        src: templates/prometheus.yml.j2
+        dest: "{{ prometheus_temporary_config }}"
+
+    - name: Create tar with prometheus.yml
+      community.general.archive:
+        path: "{{ prometheus_temporary_config }}"
+        dest: "{{ prometheus_temporary_config }}.tar"
+        force_archive: true
+
+    - name: Populate prometheus volume with tar file
+      ansible.builtin.shell:
+        podman volume import {{ volume_name }} {{ prometheus_temporary_config }}.tar
+
+    - name: Remove temporary files
+      ansible.builtin.file:
+        path: "{{ item}}"
+        state: absent
+      loop:
+        - "{{ prometheus_temporary_config }}"
+        - "{{ prometheus_temporary_config }}.tar"
+
+- name: Create systemd services for prometheus container
+  ansible.builtin.template:
+    src: templates/systemd.service.j2
+    dest: "/etc/systemd/system/{{ container_service_name }}.service"
+  register: service
+
+- name: Reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: service.changed
+
+- name: Ensure prometheus container is running
+  ansible.builtin.service:
+    name: "{{ container_service_name }}"
+    state: started

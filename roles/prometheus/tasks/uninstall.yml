@@ -1,0 +1,27 @@
+---
+- name: Check if the service exists
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ container_service_name }}.service"
+  register: service_file
+
+- when: service_file.stat.exists
+  block:
+  - name: Ensure service {{ container_service_name }} is stopped
+    ansible.builtin.service:
+      name: "{{ container_service_name }}"
+      state: stopped
+
+  - name: Remove systemd service for {{ container_name }} container
+    ansible.builtin.file:
+      dest: "/etc/systemd/system/{{ container_service_name }}.service"
+      state: absent
+    register: service
+
+  - name: Reload systemd
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+
+- name: Delete podman volume {{ volume_name }}
+  containers.podman.podman_volume:
+    name: "{{ volume_name }}"
+    state: absent

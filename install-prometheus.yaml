@@ -1,0 +1,12 @@
+---
+- name: Install prometheus container and systemd service
+  hosts: prometheus
+  gather_facts: False
+  become: True
+
+  tasks:
+  - name: Import prometheus role
+    ansible.builtin.import_role:
+      name: prometheus
+      tasks_from: "{{ task | default('install') }}"
+  

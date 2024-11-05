@@ -1,0 +1,17 @@
+# url to the container image
+container_image_url: docker.io/grafana/grafana
+
+# name of the container
+container_name: grafana
+
+# name of the container systemd service
+container_service_name: container-grafana
+
+# name of the podman volume
+volume_name: grafana_data
+
+# ip address on the host where to bind the service
+host_ip_address: 0.0.0.0
+
+# Port on the host to forward to the container
+host_port: 3000

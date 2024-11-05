@@ -1,0 +1,9 @@
+---
+- name: Install node-exporter
+  ansible.builtin.import_playbook: install-node-exporter.yaml
+
+- name: Install prometheus
+  ansible.builtin.import_playbook: install-prometheus.yaml
+
+- name: Install grafana
+  ansible.builtin.import_playbook: install-grafana.yaml
