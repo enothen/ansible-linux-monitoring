@@ -1,5 +1,5 @@
 # ansible-linux-monitoring
-Ansible playbooks to install a monitoring stack based on node-exporter, prometheus and grafana
+Ansible playbooks to install a monitoring stack based on node-exporter, prometheus and grafana on RHEL/CentOS.
 
 ## Define an inventory
 Create an inventory file and distribute roles as required. In the easiest form:
