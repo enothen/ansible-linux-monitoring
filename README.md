@@ -76,8 +76,14 @@ ok: [example.local.lab]
 TASK [grafana : Ensure grafana container is running] *****************************************************************
 changed: [example.local.lab]
 
+TASK [grafana : Wait for port 3000 to be up] *************************************************************************
+ok: [example.local.lab]
+
+TASK [grafana : Create prometheus datasource] ************************************************************************
+ok: [example.local.lab] => (item=example.local.lab)
+
 PLAY RECAP ***********************************************************************************************************
-example.local.lab : ok=14   changed=9    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
+example.local.lab : ok=7   changed=10    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
 ```
 
 # Uninstall monitoring stack

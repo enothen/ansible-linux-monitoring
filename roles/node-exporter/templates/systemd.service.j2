@@ -15,6 +15,13 @@ ExecStart=/usr/bin/podman run \
 	--rm \
 	--sdnotify=conmon \
 	-d \
+{% if environment_variables is defined %}
+  {% for var in environment_variables %}
+    {% for key, value in var.items() %}
+	-e {{ key }}={{ value }} \
+    {% endfor %}
+  {% endfor %}
+{% endif %}
 	--replace \
 	--network=host \
 	--pid=host \

@@ -20,3 +20,28 @@
     name: "{{ container_service_name }}"
     state: started
     enabled: true
+
+- name: Wait for port {{ host_port }} to be up
+  ansible.builtin.wait_for:
+    port: "{{ host_port }}"
+    delay: 5
+
+- name: Create prometheus datasource
+  tags:
+    - datasource
+  ansible.builtin.uri:
+    url: http://localhost:3000/api/datasources
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_passwd }}"
+    method: POST
+    body:
+      name: "{{ item }}"
+      type: prometheus
+      url: "http://{{ item }}:9090"
+      access: proxy
+    force_basic_auth: true
+    status_code:
+      - 200
+      - 409
+    body_format: json
+  loop: "{{ groups['prometheus'] }}"
