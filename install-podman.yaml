@@ -1,0 +1,18 @@
+---
+- name: Simple playbook to install podman on the inventory hosts
+  hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Install podman in Debian distros
+      ansible.builtin.apt:
+        name: podman
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install podman in Red Hat distros
+      ansible.builtin.dnf:
+        name: podman
+        state: present
+      when: ansible_os_family == "RedHat"
