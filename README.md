@@ -18,6 +18,27 @@ example.local.lab
 example.local.lab
 ```
 
+## Install pre-requisites
+Podman is the only pre-requisite on the target hosts. Either make sure it is installed in advance, or install it using the playbook provided:
+
+~~~
+$ ansible-playbook -i ./hosts ./install-podman.yaml
+
+PLAY [Simple playbook to install podman on the inventory hosts] ******************************************************
+
+TASK [Gathering Facts] ***********************************************************************************************
+ok: [example.local.lab]
+
+TASK [Install podman in Debian distros] ******************************************************************************
+skipping: [example.local.lab]
+
+TASK [Install podman in Red Hat distros] *****************************************************************************
+ok: [example.local.lab]
+
+PLAY RECAP ***********************************************************************************************************
+example.local.lab : ok=2    changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
+```
+
 ## Install monitoring stack
 Run install-all.yaml:
 
