@@ -25,3 +25,4 @@
   containers.podman.podman_volume:
     name: "{{ volume_name }}"
     state: absent
+  retries: 3

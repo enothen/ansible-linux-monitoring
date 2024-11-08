@@ -1,5 +1,5 @@
 # ansible-linux-monitoring
-Ansible playbooks to install a monitoring stack based on node-exporter, prometheus and grafana on RHEL/CentOS.
+Ansible playbooks to install a monitoring stack based on node-exporter, prometheus and grafana.
 
 ## Define an inventory
 Create an inventory file and distribute roles as required. In the easiest form:
@@ -16,6 +16,78 @@ example.local.lab
 
 [grafana]
 example.local.lab
+```
+
+A more complex form of inventory, but also more realistic, would deploy node-exporter in all hosts, Prometheus in one host per site, maybe grouping by site, and finally Grafana in a single place but with data sources configured for each Prometheus instance.
+The following example considers hosts on two different sites. All the hosts will get node-exporter installed. Only one host on each site will also get Prometheus, and a single (different) host will be running Grafana.
+```
+$ cat hosts-multisite.yaml
+sitea:
+  hosts:
+    host1.sitea.example.lab:
+    host2.sitea.example.lab:
+    host3.sitea.example.lab:
+
+siteb:
+  hosts:
+    host4.siteb.example.lab:
+    host5.siteb.example.lab:
+    host6.siteb.example.lab:
+    host7.siteb.example.lab:
+
+node_exporter:
+  children:
+    sitea:
+    siteb:
+
+prometheus:
+  hosts:
+    host1.sitea.example.lab:
+      clients:
+        - host1.sitea.example.lab
+        - host2.sitea.example.lab
+        - host3.sitea.example.lab
+    host4.siteb.example.lab:
+      clients:
+        - host4.siteb.example.lab
+        - host5.siteb.example.lab
+        - host6.siteb.example.lab
+        - host7.siteb.example.lab
+
+grafana:
+  hosts:
+    host7.siteb.example.lab:
+```
+
+Each host running Prometheus will have, by default, all the hosts in the node_exporter group configured as targets. To override this, the example above uses the clients variable on each Prometheus host, which results in the following configuration applied on host1:
+```
+$ cat prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+          - host1.sitea.example.lab:9100
+          - host2.sitea.example.lab:9100
+          - host3.sitea.example.lab:9100
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.+):(\d+)'
+        target_label: instance
+        replacement: '${1}'
+```
+
+The server running Grafana will have a datasource configured for each host in the prometheus group:
+```
+$ curl -s http://admin:admin@host7.siteb.example.lab:3000/api/datasources | jq -j '.[]|(.name, ": ", .url, "\n")'
+host1.sitea.example.lab: http://host1.sitea.example.lab:9090
+host4.siteb.example.lab: http://host4.siteb.example.lab:9090
 ```
 
 ## Install pre-requisites
