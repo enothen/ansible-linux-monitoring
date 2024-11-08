@@ -73,9 +73,9 @@ scrape_configs:
   - job_name: node-exporter
     static_configs:
       - targets:
-          - host1.sitea.example.lab:9100
-          - host2.sitea.example.lab:9100
-          - host3.sitea.example.lab:9100
+        - host1.sitea.example.lab:9100
+        - host2.sitea.example.lab:9100
+        - host3.sitea.example.lab:9100
       relabel_configs:
       - source_labels: [__address__]
         regex: '(.+):(\d+)'
