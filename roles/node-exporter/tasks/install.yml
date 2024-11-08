@@ -16,3 +16,4 @@
     name: "{{ container_service_name }}"
     state: started
     enabled: true
+  retries: 3
