@@ -15,6 +15,8 @@ ExecStart=/usr/bin/podman run \
 	--rm \
 	--sdnotify=conmon \
 	-d \
+	--replace \
+	--pid=host \
 {% if environment_variables is defined %}
   {% for var in environment_variables %}
     {% for key, value in var.items() %}
@@ -22,15 +24,16 @@ ExecStart=/usr/bin/podman run \
     {% endfor %}
   {% endfor %}
 {% endif %}
-	--replace \
-	--pid=host \
-	--publish {{ host_ip_address }}:{{ host_port }}:9090 \
-	--volume {{ volume_name }}:/etc/prometheus/ \
+{% if container_network is defined %}
+	--network {{ container_network }} \
+	--publish {{ host_ip_address }}:{{ service_port }}:9090 \
+{% else %}
+	--network=host \
+{% endif %}
+	--volume {{ volume_name_data }}:/prometheus/ \
+	--volume {{ volume_name_config }}:/etc/prometheus/ \
 	--name {{ container_name }} {{ container_image_url }} \
 	--config.file=/etc/prometheus/prometheus.yml
-ExecStop=/usr/bin/podman stop \
-	--ignore -t 10 \
-	--cidfile=%t/%n.ctr-id
 
 ExecStop=/usr/bin/podman stop --ignore -t 10 --cidfile=%t/%n.ctr-id
 

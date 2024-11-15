@@ -6,20 +6,32 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['localhost:9090']
-  - job_name: node-exporter
+{% if node_exporter_groups is defined %}
+{%   for group in node_exporter_groups %}
+  - job_name: {{ group['name'] }}
     static_configs:
+{%     if group['clients'] is defined %}
       - targets:
-{% if clients is defined %}
-{%   for host in clients %}
+{%       for host in group['clients'] %}
         - {{ host }}:9100
-{%   endfor %}
-{% else %}
-{%   for host in groups['node_exporter'] %}
-        - {{ host }}:9100
-{%   endfor %}
-{% endif %}
+{%       endfor %}
     relabel_configs:
       - source_labels: [__address__]
         regex: '(.+):(\d+)'
         target_label: instance
         replacement: '${1}'
+{%     endif %}
+{%   endfor %}
+{% else %}
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+{%   for host in groups['node_exporter'] %}
+        - {{ host }}:9100
+{%   endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.+):(\d+)'
+        target_label: instance
+        replacement: '${1}'
+{% endif %}

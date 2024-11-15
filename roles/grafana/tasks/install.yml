@@ -15,23 +15,28 @@
     daemon_reload: true
   when: service.changed
 
-- name: Ensure grafana container is running
+- name: Restart grafana if service changed
+  ansible.builtin.service:
+    name: "{{ container_service_name }}"
+    state: restarted
+  when: service.changed
+
+- name: Ensure grafana container is enabled and running
   ansible.builtin.service:
     name: "{{ container_service_name }}"
     state: started
     enabled: true
   retries: 3
 
-- name: Wait for port {{ host_port }} to be up
+- name: Wait for port {{ service_port }} to be up
   ansible.builtin.wait_for:
-    port: "{{ host_port }}"
-    delay: 5
+    port: "{{ service_port }}"
 
 - name: Create prometheus datasource
   tags:
     - datasource
   ansible.builtin.uri:
-    url: http://localhost:3000/api/datasources
+    url: http://localhost:{{ service_port }}/api/datasources
     user: "{{ grafana_user }}"
     password: "{{ grafana_passwd }}"
     method: POST
