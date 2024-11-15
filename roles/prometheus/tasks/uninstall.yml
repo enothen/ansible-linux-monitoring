@@ -15,13 +15,15 @@
     ansible.builtin.file:
       dest: "/etc/systemd/system/{{ container_service_name }}.service"
       state: absent
-    register: service
 
   - name: Reload systemd
     ansible.builtin.systemd_service:
       daemon_reload: true
 
-- name: Delete podman volume {{ volume_name }}
+- name: Delete podman volumes
   containers.podman.podman_volume:
-    name: "{{ volume_name }}"
+    name: "{{ item }}"
     state: absent
+  loop:
+    - "{{ volume_name_config }}"
+    - "{{ volume_name_data }}"

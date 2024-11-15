@@ -15,7 +15,6 @@
     ansible.builtin.file:
       dest: "/etc/systemd/system/{{ container_service_name }}.service"
       state: absent
-    register: service
 
   - name: Reload systemd
     ansible.builtin.systemd_service:

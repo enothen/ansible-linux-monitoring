@@ -1,8 +1,20 @@
-# url to the container image
+# URL to the container image
 container_image_url: docker.io/prom/node-exporter
 
-# name of the container
+# Name of the container
 container_name: node-exporter
 
-# name of the container systemd service
+# Name of the container systemd service
 container_service_name: container-node-exporter
+
+# Podman network to use (leave undefined to use host network instead)
+# container_network: podman
+
+# IP address on the host where to bind the port that is forwarded
+host_ip_address: 0.0.0.0
+
+# Port to forward to the container and to check service status
+service_port: 9100
+
+# List of environment variables to pass to the container
+# environment_variables: []

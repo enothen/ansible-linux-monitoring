@@ -18,8 +18,7 @@ example.local.lab
 example.local.lab
 ```
 
-A more complex form of inventory, but also more realistic, would deploy node-exporter in all hosts, Prometheus in one host per site, maybe grouping by site, and finally Grafana in a single place but with data sources configured for each Prometheus instance.
-The following example considers hosts on two different sites. All the hosts will get node-exporter installed. Only one host on each site will also get Prometheus, and a single (different) host will be running Grafana.
+The following inventory example is more complex, but also more realistic. This deploys node-exporter in all hosts, Prometheus in one host per site, and Grafana in a single site but with data sources configured for each Prometheus instance:
 ```
 $ cat hosts-multisite.yaml
 sitea:
@@ -43,23 +42,27 @@ node_exporter:
 prometheus:
   hosts:
     host1.sitea.example.lab:
-      clients:
-        - host1.sitea.example.lab
-        - host2.sitea.example.lab
-        - host3.sitea.example.lab
+      node_exporter_groups:
+        - name: sitea
+          clients:
+            - host1.sitea.example.lab
+            - host2.sitea.example.lab
+            - host3.sitea.example.lab
     host4.siteb.example.lab:
-      clients:
-        - host4.siteb.example.lab
-        - host5.siteb.example.lab
-        - host6.siteb.example.lab
-        - host7.siteb.example.lab
+      node_exporter_groups:
+        - name: siteb
+          clients:
+            - host4.siteb.example.lab
+            - host5.siteb.example.lab
+            - host6.siteb.example.lab
+            - host7.siteb.example.lab
 
 grafana:
   hosts:
     host7.siteb.example.lab:
 ```
 
-Each host running Prometheus will have, by default, all the hosts in the node_exporter group configured as targets. To override this, the example above uses the clients variable on each Prometheus host, which results in the following configuration applied on host1:
+Each host running Prometheus will have, by default, all the hosts in the node_exporter group configured as targets. To override this, the example above uses the `node_exporter_groups` variable on each Prometheus host, which results in the following configuration applied on host1:
 ```
 $ cat prometheus.yml
 global:
@@ -70,12 +73,24 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
       - targets: ['localhost:9090']
-  - job_name: node-exporter
+  - job_name: sitea
     static_configs:
       - targets:
         - host1.sitea.example.lab:9100
         - host2.sitea.example.lab:9100
         - host3.sitea.example.lab:9100
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.+):(\d+)'
+        target_label: instance
+        replacement: '${1}'
+  - job_name: sitea
+    static_configs:
+      - targets:
+        - host4.siteb.example.lab:9100
+        - host5.siteb.example.lab:9100
+        - host6.siteb.example.lab:9100
+        - host7.siteb.example.lab:9100
       relabel_configs:
       - source_labels: [__address__]
         regex: '(.+):(\d+)'

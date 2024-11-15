@@ -10,8 +10,18 @@ container_service_name: container-grafana
 # name of the podman volume
 volume_name: grafana_data
 
-# ip address on the host where to bind the service
+# Podman network to use (leave undefined to use host network instead)
+# container_network: podman
+
+# IP address on the host where to bind the port that is forwarded
 host_ip_address: 0.0.0.0
 
-# Port on the host to forward to the container
-host_port: 3000
+# Port to forward to the container and to check service status
+service_port: 3000
+
+# List of environment variables to pass to the container
+# environment_variables: []
+
+# Default grafana user and password, as defined on the grafana container image
+grafana_user: admin
+grafana_passwd: admin
