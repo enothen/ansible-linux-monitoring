@@ -1,5 +1,5 @@
 # URL to the container image
-container_image_url: docker.io/prom/prometheus
+prometheus_container_image_url: docker.io/prom/prometheus
 
 # Name of the container
 prometheus_container_name: prometheus

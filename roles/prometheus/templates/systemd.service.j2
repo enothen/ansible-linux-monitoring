@@ -32,7 +32,7 @@ ExecStart=/usr/bin/podman run \
 {% endif %}
 	--volume {{ prometheus_data_volume_name }}:/prometheus/ \
 	--volume {{ prometheus_config_volume_name }}:/etc/prometheus/ \
-	--name {{ prometheus_container_name }} {{ container_image_url }} \
+	--name {{ prometheus_container_name }} {{ prometheus_container_image_url }} \
 	--config.file=/etc/prometheus/prometheus.yml
 
 ExecStop=/usr/bin/podman stop --ignore -t 10 --cidfile=%t/%n.ctr-id

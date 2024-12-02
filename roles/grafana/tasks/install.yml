@@ -28,6 +28,7 @@
     enabled: true
   retries: 3
 
+
 - name: Wait for port {{ grafana_port }} to be up
   ansible.builtin.wait_for:
     port: "{{ grafana_port }}"
@@ -39,6 +40,7 @@
     url: http://localhost:{{ grafana_port }}/api/datasources
     user: "{{ grafana_default_user }}"
     password: "{{ grafana_default_passwd }}"
+
     method: POST
     body:
       name: "{{ item }}"
