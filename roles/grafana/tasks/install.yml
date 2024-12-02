@@ -2,12 +2,12 @@
 - name: Create podman volume for grafana data
   containers.podman.podman_volume:
     state: present
-    name: "{{ volume_name }}"
+    name: "{{ grafana_data_volume_name }}"
 
 - name: Create systemd services for grafana container
   ansible.builtin.template:
     src: templates/systemd.service.j2
-    dest: "/etc/systemd/system/{{ container_service_name }}.service"
+    dest: "/etc/systemd/system/{{ grafana_container_service_name }}.service"
   register: service
 
 - name: Reload systemd
@@ -17,28 +17,30 @@
 
 - name: Restart grafana if service changed
   ansible.builtin.service:
-    name: "{{ container_service_name }}"
+    name: "{{ grafana_container_service_name }}"
     state: restarted
   when: service.changed
 
 - name: Ensure grafana container is enabled and running
   ansible.builtin.service:
-    name: "{{ container_service_name }}"
+    name: "{{ grafana_container_service_name }}"
     state: started
     enabled: true
   retries: 3
 
-- name: Wait for port {{ service_port }} to be up
+
+- name: Wait for port {{ grafana_port }} to be up
   ansible.builtin.wait_for:
-    port: "{{ service_port }}"
+    port: "{{ grafana_port }}"
 
 - name: Create prometheus datasource
   tags:
     - datasource
   ansible.builtin.uri:
-    url: http://localhost:{{ service_port }}/api/datasources
-    user: "{{ grafana_user }}"
-    password: "{{ grafana_passwd }}"
+    url: http://localhost:{{ grafana_port }}/api/datasources
+    user: "{{ grafana_default_user }}"
+    password: "{{ grafana_default_passwd }}"
+
     method: POST
     body:
       name: "{{ item }}"
@@ -51,3 +53,23 @@
       - 409
     body_format: json
   loop: "{{ groups['prometheus'] }}"
+
+- name: Download default dashboard
+  tags:
+    - never
+  ansible.builtin.get_url:
+    url: "{{ default_dashboard_url }}"
+    dest: /tmp/dashboard.json
+
+- name: Get public dashboard
+  tags:
+    - never
+  ansible.builtin.uri:
+    url: "http://localhost:3000/api/dashboards/import"
+    user: "{{ grafana_default_user }}"
+    password: "{{ grafana_default_passwd }}"
+    method: POST
+    remote_src: true
+    src: /tmp/dashboard.json
+    force_basic_auth: true
+    status_code: 200

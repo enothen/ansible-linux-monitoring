@@ -4,19 +4,19 @@
     state: present
     name: "{{ item }}"
   loop:
-    - "{{ volume_name_config }}"
-    - "{{ volume_name_data }}"
+    - "{{ prometheus_config_volume_name }}"
+    - "{{ prometheus_data_volume_name }}"
 
 - name: Template prometheus.yml.j2 to host
   ansible.builtin.template:
     src: templates/prometheus.yml.j2
-    dest: "{{ podman_default_storage_path }}/{{ volume_name_config }}/_data/prometheus.yml"
+    dest: "{{ podman_default_storage_path }}/{{ prometheus_config_volume_name }}/_data/prometheus.yml"
   register: prometheus_config
 
 - name: Create systemd services for prometheus container
   ansible.builtin.template:
     src: templates/systemd.service.j2
-    dest: "/etc/systemd/system/{{ container_service_name }}.service"
+    dest: "/etc/systemd/system/{{ prometheus_container_service_name }}.service"
   register: service
 
 - name: Reload systemd
@@ -26,7 +26,7 @@
 
 - name: Restart prometheus if configuration changed
   ansible.builtin.service:
-    name: "{{ container_service_name }}"
+    name: "{{ prometheus_container_service_name }}"
     state: restarted
   when:
     - prometheus_config.changed
@@ -34,7 +34,7 @@
 
 - name: Ensure prometheus container is running
   ansible.builtin.service:
-    name: "{{ container_service_name }}"
+    name: "{{ prometheus_container_service_name }}"
     state: started
     enabled: true
   retries: 3
