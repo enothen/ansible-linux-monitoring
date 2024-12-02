@@ -1,19 +1,19 @@
 ---
 - name: Check if the service exists
   ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ container_service_name }}.service"
+    path: "/etc/systemd/system/{{ node_exporter_container_service_name }}.service"
   register: service_file
 
 - when: service_file.stat.exists
   block:
-  - name: Ensure service {{ container_service_name }} is stopped
+  - name: Ensure service {{ node_exporter_container_service_name }} is stopped
     ansible.builtin.service:
-      name: "{{ container_service_name }}"
+      name: "{{ node_exporter_container_service_name }}"
       state: stopped
 
-  - name: Remove systemd service for {{ container_name }} container
+  - name: Remove systemd service for {{ node_exporter_container_name }} container
     ansible.builtin.file:
-      dest: "/etc/systemd/system/{{ container_service_name }}.service"
+      dest: "/etc/systemd/system/{{ node_exporter_container_service_name }}.service"
       state: absent
 
   - name: Reload systemd

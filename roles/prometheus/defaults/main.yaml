@@ -2,26 +2,26 @@
 container_image_url: docker.io/prom/prometheus
 
 # Name of the container
-container_name: prometheus
+prometheus_container_name: prometheus
 
 # Name of the container systemd service
-container_service_name: container-prometheus
+prometheus_container_service_name: container-prometheus
 
 # Names of the podman volumes
-volume_name_config: prometheus_config
-volume_name_data: prometheus_data
+prometheus_config_volume_name: prometheus_config
+prometheus_data_volume_name: prometheus_data
 
 # Podman network to use (leave undefined to use host network instead)
-# container_network: podman
+# prometheus_container_network: podman
 
 # IP address on the host where to bind the port that is forwarded
-host_ip_address: 0.0.0.0
+prometheus_ip_address_bind: 0.0.0.0
 
 # Port to forward to the container and to check service status
-service_port: 9100
+prometheus_port: 9090
 
 # List of environment variables to pass to the container
-# environment_variables: []
+# prometheus_environment_variables: []
 
 # Default path to podman storage
 podman_default_storage_path: /var/lib/containers/storage/volumes

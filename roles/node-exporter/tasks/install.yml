@@ -3,7 +3,7 @@
 - name: Create systemd services for node-exporter container
   ansible.builtin.template:
     src: templates/systemd.service.j2
-    dest: "/etc/systemd/system/{{ container_service_name }}.service"
+    dest: "/etc/systemd/system/{{ node_exporter_container_service_name }}.service"
   register: service
 
 - name: Reload systemd
@@ -13,7 +13,7 @@
 
 - name: Ensure node-exporter container is running
   ansible.builtin.service:
-    name: "{{ container_service_name }}"
+    name: "{{ node_exporter_container_service_name }}"
     state: started
     enabled: true
   retries: 3

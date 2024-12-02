@@ -1,5 +1,5 @@
 [Unit]
-Description=Podman {{ container_service_name }}.service
+Description=Podman {{ grafana_container_service_name }}.service
 Documentation=man:podman-generate-systemd(1)
 Wants=network-online.target
 After=network-online.target
@@ -17,21 +17,21 @@ ExecStart=/usr/bin/podman run \
 	-d \
 	--replace \
 	--pid=host \
-{% if environment_variables is defined %}
-  {% for var in environment_variables %}
+{% if grafana_environment_variables is defined %}
+  {% for var in grafana_environment_variables %}
     {% for key, value in var.items() %}
 	-e {{ key }}={{ value }} \
     {% endfor %}
   {% endfor %}
 {% endif %}
-{% if container_network is defined %}
-	--network {{ container_network }} \
-	--publish {{ host_ip_address }}:{{ service_port }}:3000 \
+{% if grafana_container_network is defined %}
+	--network {{ grafana_container_network }} \
+	--publish {{ grafana_ip_address_bind }}:{{ grafana_port }}:3000 \
 {% else %}
 	--network=host \
 {% endif %}
-	--volume {{ volume_name }}:/var/lib/grafana \
-	--name {{ container_name }} {{ container_image_url }}
+	--volume {{ grafana_data_volume_name }}:/var/lib/grafana \
+	--name {{ grafana_container_name }} {{ grafana_container_image_url }}
 
 ExecStop=/usr/bin/podman stop --ignore -t 10 --cidfile=%t/%n.ctr-id
 
